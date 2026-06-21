@@ -51,11 +51,11 @@ export const login = async (req, res) => {
             };
         const user = await User.findOne({ username });
         if (!user) {
-            return res.status(400).json({ message: "Invalid username or password", success: false });    
+            return res.status(400).json({ message: "Invalid username", success: false });    
         };
         const isPasswordMatch = await bcrypt.compare(password, user.password);
         if (!isPasswordMatch) {
-            return res.status(400).json({ message: "Invalid username or password", success: false });
+            return res.status(400).json({ message: "Invalid password", success: false });
         }
         const tokenData = {
             userId: user._id,
@@ -81,5 +81,15 @@ export const logout = (req, res) => {
     } catch (error) {
         console.error(error);
     }  
+}
+
+export const getOtherUsers = async (req, res) => {
+    try {
+        const loggedInUserId = req.Id;
+        const otherUsers = await User.find({ _id: { $ne: loggedInUserId } }).select("-password");
+        return res.status(200).json(otherUsers);
+    } catch (error) {
+        console.error(error);
+    }
 }
 
